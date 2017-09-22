@@ -1,5 +1,6 @@
 const React = require("react")
 const ReactDOM = require("react-dom")
+const ReactTestUtils = require("react-dom/test-utils")
 
 class PlayForm extends React.Component {
     constructor() {
@@ -8,7 +9,7 @@ class PlayForm extends React.Component {
     }
 
     submitForm() {
-        this.props.rps.play("p1 throw", "p2 throw", this)
+        this.props.rps.play(this.state.p1Throw, this.state.p2Throw, this)
     }
 
     tie(){
@@ -27,9 +28,15 @@ class PlayForm extends React.Component {
         this.setState({message: "INVALID!!!!"})
     }
 
+    inputChanged(e){
+        this.setState({[e.target.name]: e.target.value})
+    }
+
     render() {
         return <div>
             {this.state.message}
+            <input type="text" name="p1Throw" onChange={this.inputChanged.bind(this)}/>
+            <input type="text" name="p2Throw" onChange={this.inputChanged.bind(this)}/>
             <button onClick={this.submitForm.bind(this)}>PLAY</button>
         </div>
     }
@@ -101,6 +108,29 @@ describe("play form", function () {
             expect(page()).toContain("INVALID!!!!")
         })
     })
+
+    it("sends the p1 and p2 throw user input to the game engine", function () {
+        let playSpy = jasmine.createSpy()
+
+        mountApp({
+            play: playSpy
+        })
+
+        let p1ThrowInputElement = document.querySelector("input[name='p1Throw']")
+        let p2ThrowInputElement = document.querySelector("input[name='p2Throw']")
+
+        p1ThrowInputElement.value = "foo"
+        p2ThrowInputElement.value = "bar"
+
+        ReactTestUtils.Simulate.change(p1ThrowInputElement)
+        ReactTestUtils.Simulate.change(p2ThrowInputElement)
+
+
+        submitForm()
+
+        expect(playSpy).toHaveBeenCalledWith("foo", "bar", jasmine.any(Object))
+    })
+
 
     let domFixture
 
