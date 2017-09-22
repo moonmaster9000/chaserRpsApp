@@ -1,12 +1,12 @@
-function play(p1, p2, observer) {
-    new PlayRequest(p1, p2, observer).execute()
+function playRound(p1Throw, p2Throw, observer) {
+    new PlayRoundRequest(p1Throw, p2Throw, observer).execute()
 }
 
-function PlayRequest(p1, p2, observer) {
+function PlayRoundRequest(p1Throw, p2Throw, observer) {
     this.execute = function() {
-        if (throwInvalid())
+        if (isInvalidThrow())
             observer.invalid()
-        else if (draw())
+        else if (isTie())
             observer.tie()
         else if (p1Wins())
             observer.p1Wins()
@@ -14,21 +14,21 @@ function PlayRequest(p1, p2, observer) {
             observer.p2Wins()
     }
 
-    const validShapes = ["rock", "paper", "scissors"]
+    const validThrows = ["rock", "paper", "scissors"]
 
-    function throwInvalid() {
-        return !validShapes.includes(p1) || !validShapes.includes(p2)
+    function isInvalidThrow() {
+        return !validThrows.includes(p1Throw) || !validThrows.includes(p2Throw)
     }
 
-    function draw() {
-        return p1 === p2
+    function isTie() {
+        return p1Throw === p2Throw
     }
 
     function p1Wins() {
         return(
-            p1 === "rock"     && p2 === "scissors" ||
-            p1 === "scissors" && p2 === "paper"    ||
-            p1 === "paper"    && p2 === "rock"
+            p1Throw === "rock"     && p2Throw === "scissors" ||
+            p1Throw === "scissors" && p2Throw === "paper"    ||
+            p1Throw === "paper"    && p2Throw === "rock"
         )
     }
 }
@@ -42,19 +42,19 @@ describe("play", function () {
         })
 
         it("rock v. scissors", function () {
-            play("rock", "scissors", observer)
+            playRound("rock", "scissors", observer)
 
             expect(observer.p1Wins).toHaveBeenCalled()
         })
 
         it("scissors v. paper", function () {
-            play("scissors", "paper", observer)
+            playRound("scissors", "paper", observer)
 
             expect(observer.p1Wins).toHaveBeenCalled()
         })
 
         it("paper v. rock", function () {
-            play("paper", "rock", observer)
+            playRound("paper", "rock", observer)
 
             expect(observer.p1Wins).toHaveBeenCalled()
         })
@@ -67,19 +67,19 @@ describe("play", function () {
         })
 
         it("scissors v. rock", function () {
-            play("scissors", "rock", observer)
+            playRound("scissors", "rock", observer)
 
             expect(observer.p2Wins).toHaveBeenCalled()
         })
 
         it("paper v. scissors", function () {
-            play("paper", "scissors", observer)
+            playRound("paper", "scissors", observer)
 
             expect(observer.p2Wins).toHaveBeenCalled()
         })
 
         it("rock v. paper", function () {
-            play("rock", "paper", observer)
+            playRound("rock", "paper", observer)
 
             expect(observer.p2Wins).toHaveBeenCalled()
         })
@@ -91,19 +91,19 @@ describe("play", function () {
         })
 
         it("rock v. rock", function () {
-            play("rock", "rock", observer)
+            playRound("rock", "rock", observer)
 
             expect(observer.tie).toHaveBeenCalled()
         })
 
         it("paper v. paper", function () {
-            play("paper", "paper", observer)
+            playRound("paper", "paper", observer)
 
             expect(observer.tie).toHaveBeenCalled()
         })
 
         it("scissors v. scissors", function () {
-            play("scissors", "scissors", observer)
+            playRound("scissors", "scissors", observer)
 
             expect(observer.tie).toHaveBeenCalled()
         })
@@ -115,19 +115,19 @@ describe("play", function () {
         })
 
         it("<invalid> v. <valid>", function () {
-            play(Math.random(), "scissors", observer)
+            playRound(Math.random(), "scissors", observer)
 
             expect(observer.invalid).toHaveBeenCalled()
         })
 
         it("<valid> v. <invalid>", function () {
-            play("scissors", Math.random(), observer)
+            playRound("scissors", Math.random(), observer)
 
             expect(observer.invalid).toHaveBeenCalled()
         })
 
         it("invalid v. same invalid", function () {
-            play("sailboat", "sailboat", observer)
+            playRound("sailboat", "sailboat", observer)
 
             expect(observer.invalid).toHaveBeenCalled()
         })
